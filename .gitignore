@@ -1,0 +1,7 @@
+*uvguix*
+*build_log*
+obj/*
+*/listings/*
+.DS_Store
+*.jdebug
+builds/*
