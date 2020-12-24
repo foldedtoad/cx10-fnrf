@@ -149,14 +149,14 @@ int main(void)
     init_MPU6050();
 
     GPIO_InitTypeDef LEDGPIOinit;
-    LEDGPIOinit.GPIO_Pin   = LED1_BIT;
+    LEDGPIOinit.GPIO_Pin   = LED1_BIT;         // RED
     LEDGPIOinit.GPIO_Mode  = GPIO_Mode_OUT;
     LEDGPIOinit.GPIO_Speed = GPIO_Speed_50MHz;
     LEDGPIOinit.GPIO_OType = GPIO_OType_PP;
     LEDGPIOinit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_Init(LED1_PORT, &LEDGPIOinit);
 
-    LEDGPIOinit.GPIO_Pin = LED2_BIT;
+    LEDGPIOinit.GPIO_Pin = LED2_BIT;           // BLUE
     GPIO_Init(LED2_PORT, &LEDGPIOinit);
 
     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);

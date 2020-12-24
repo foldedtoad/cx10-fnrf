@@ -80,8 +80,8 @@
 #endif
 
 #if defined(CX_10_BLUE_BOARD)
-#define LEDon Bit_RESET
-#define LEDoff Bit_SET
+#define LEDon Bit_SET
+#define LEDoff Bit_RESET
 
 #define LED1_PORT GPIOA
 #define LED1_BIT GPIO_Pin_4    // red
