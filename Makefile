@@ -1,14 +1,14 @@
 
 # Compile-time options
-OPTIONS		?=
+OPTIONS ?=
 
-# Debugger optons, must be empty or GDB
+# Debugger optons, must be empty or yes
 DEBUG ?=
 
 # Working directories
 ROOT		 = $(dir $(lastword $(MAKEFILE_LIST)))
 OBJECT_DIR	 = $(ROOT)/obj
-BIN_DIR		 = $(ROOT)/builds
+BIN_DIR		 = $(ROOT)builds
 
 LIBSDIR    = ./Libraries
 CORELIBDIR = $(LIBSDIR)/CMSIS/Include
@@ -75,7 +75,7 @@ INCLUDE_DIRS = $(DEVDIR)/Include \
           ./src
 
 ARCH_FLAGS	 = -mthumb -mcpu=cortex-m0
-BASE_CFLAGS		 = $(ARCH_FLAGS) \
+BASE_CFLAGS	 = $(ARCH_FLAGS) \
 		   $(addprefix -D,$(OPTIONS)) \
 		   $(addprefix -I,$(INCLUDE_DIRS)) \
 		   -Wall \
@@ -105,47 +105,50 @@ LDFLAGS		 = -lm \
 # Things we will build
 #
 
-ifeq ($(DEBUG),GDB)
+ifeq ($(DEBUG),yes)
+BUILD_TYPE = debug
 CFLAGS = $(BASE_CFLAGS) \
-	-ggdb \
+	-g \
 	-O0
 else
+BUILD_TYPE = product
 CFLAGS = $(BASE_CFLAGS) \
 	-Os
 endif
 
 TRGT =  arm-none-eabi-
 
-TARGET_HEX	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.hex
-TARGET_ELF	 = $(BIN_DIR)/cx10_fnrf_gnu_r01.elf
+TARGET_HEX	 = $(BIN_DIR)/cx10_fnrf.hex
+TARGET_ELF	 = $(BIN_DIR)/cx10_fnrf.elf
 TARGET_OBJS	 = $(addsuffix .o,$(addprefix $(OBJECT_DIR)/,$(basename $(SRC))))
 
 # List of buildable ELF files and their object dependencies.
 # It would be nice to compute these lists, but that seems to be just beyond make.
 
 $(TARGET_HEX): $(TARGET_ELF)
+	@echo Build type: $(BUILD_TYPE)
 	$(OBJCOPY) -O ihex $< $@
 	$(TRGT)size $(TARGET_ELF)
 	$(TRGT)size $(TARGET_HEX)
 
 $(TARGET_ELF):  $(TARGET_OBJS)
-	$(CC) -o $@ $^ $(LDFLAGS)
-	
+	@echo link $(TARGET_ELF)
+	@$(CC) -o $@ $^ $(LDFLAGS)
 
 # Compile
 $(OBJECT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	@echo compile $(notdir $<)
 	@$(CC) -c -o $@ $(CFLAGS) $<
 
 # Assemble
 $(OBJECT_DIR)/%.o: %.s
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	@echo assemble $(notdir $<)
 	@$(CC) -c -o $@ $(ASFLAGS) $< 
 $(OBJECT_DIR)/%.o): %.S
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	@echo assemble $(notdir $<)
 	@$(CC) -c -o $@ $(ASFLAGS) $< 
 
 clean:

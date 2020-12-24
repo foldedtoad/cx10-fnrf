@@ -21,8 +21,8 @@ extern int16_t LiPoVolt;
 
 void init_ADC()
 {
-
     GPIO_InitTypeDef gpioinitADC;
+
 #if defined(CX_10_RED_BOARD)
     gpioinitADC.GPIO_Pin = GPIO_Pin_2;
 #endif

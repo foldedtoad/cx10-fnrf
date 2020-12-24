@@ -27,6 +27,7 @@ static uint8_t chanNewValue[6] = {1, 1, 1, 1, 1, 1};
 
 void init_PPMRX()
 {
+#if 0 // Don't touch PA14 -- kills SWD-based debugging
     GPIO_InitTypeDef RXGPIOinit;
     RXGPIOinit.GPIO_Pin = GPIO_Pin_14;
     RXGPIOinit.GPIO_Mode = GPIO_Mode_IN;
@@ -49,11 +50,13 @@ void init_PPMRX()
     NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
+#endif
 }
 
 
 void EXTI4_15_IRQHandler(void)
 {
+#if 0  // Don't touch PA14 -- kills SWD-based debugging
     static uint16_t lastTime = 0;
     static uint8_t actChannel = 0;
     uint16_t ThisTime = TIM3->CNT;
@@ -78,6 +81,7 @@ void EXTI4_15_IRQHandler(void)
             lastTime = ThisTime;
         }
     }
+#endif
 }
 
 

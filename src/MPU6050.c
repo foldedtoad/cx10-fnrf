@@ -192,22 +192,22 @@ void ReadMPU()
 void init_MPU6050()
 {
     GPIO_InitTypeDef gpioinitI2C1;
-    gpioinitI2C1.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-    gpioinitI2C1.GPIO_Mode = GPIO_Mode_AF;
+    gpioinitI2C1.GPIO_Pin   = GPIO_Pin_6 | GPIO_Pin_7;
+    gpioinitI2C1.GPIO_Mode  = GPIO_Mode_AF;
     gpioinitI2C1.GPIO_OType = GPIO_OType_OD;
-    gpioinitI2C1.GPIO_PuPd = GPIO_PuPd_UP;//NOPULL;
+    gpioinitI2C1.GPIO_PuPd  = GPIO_PuPd_UP;//NOPULL;
     GPIO_Init(GPIOB, &gpioinitI2C1);
 
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_1);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_1);
 
     I2C_InitTypeDef initI2C1;
-    initI2C1.I2C_Timing = 0x0010020A;
-    initI2C1.I2C_AnalogFilter = I2C_AnalogFilter_Enable;
+    initI2C1.I2C_Timing        = 0x0010020A;
+    initI2C1.I2C_AnalogFilter  = I2C_AnalogFilter_Enable;
     initI2C1.I2C_DigitalFilter = 0;
-    initI2C1.I2C_Mode = I2C_Mode_I2C;
-    initI2C1.I2C_OwnAddress1 = 0xAB;
-    initI2C1.I2C_Ack = I2C_Ack_Enable;
+    initI2C1.I2C_Mode          = I2C_Mode_I2C;
+    initI2C1.I2C_OwnAddress1   = 0xAB;
+    initI2C1.I2C_Ack           = I2C_Ack_Enable;
     initI2C1.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
     I2C_Init(I2C1, &initI2C1);
     I2C_Cmd(I2C1, ENABLE);

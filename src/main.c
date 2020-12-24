@@ -133,23 +133,27 @@ int main(void)
 
     //init
     init_Timer();
+
     init_ADC();
+
 #if defined(SERIAL_ACTIVE)
     init_UART(115200);
 #endif
 
 #ifndef CX_10_RED_RF
+#if 0  // FIXME  temp remove for debugging
     init_PPMRX();
+#endif
 #endif
 
     init_MPU6050();
 
     GPIO_InitTypeDef LEDGPIOinit;
-    LEDGPIOinit.GPIO_Pin = LED1_BIT;
-    LEDGPIOinit.GPIO_Mode = GPIO_Mode_OUT;
+    LEDGPIOinit.GPIO_Pin   = LED1_BIT;
+    LEDGPIOinit.GPIO_Mode  = GPIO_Mode_OUT;
     LEDGPIOinit.GPIO_Speed = GPIO_Speed_50MHz;
     LEDGPIOinit.GPIO_OType = GPIO_OType_PP;
-    LEDGPIOinit.GPIO_PuPd   = GPIO_PuPd_NOPULL;
+    LEDGPIOinit.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_Init(LED1_PORT, &LEDGPIOinit);
 
     LEDGPIOinit.GPIO_Pin = LED2_BIT;
@@ -157,13 +161,6 @@ int main(void)
 
     GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
     GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
-
-#if defined(CX_10_BLUE_BOARD)
-    LEDGPIOinit.GPIO_Pin = GPIO_Pin_5; // 3,3V LDO enable
-    GPIO_Init(GPIOA, &LEDGPIOinit);
-
-    GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_SET);
-#endif
 
     // Initialise the RF RX and bind
 #ifdef CX_10_RED_RF
@@ -341,11 +338,9 @@ int main(void)
                 }
 
 #if defined(CX_10_BLUE_BOARD) // turn off to save the lipo
-
                 if (LiPoVolt < 250) {
                     GPIO_WriteBit(GPIOA, GPIO_Pin_5, Bit_RESET);
                 }
-
 #endif
             } else if (LiPoVolt < 300) {
                 LiPoEmptyWaring++;

@@ -83,11 +83,11 @@
 #define LEDon Bit_RESET
 #define LEDoff Bit_SET
 
-#define LED1_PORT GPIOB
-#define LED1_BIT GPIO_Pin_2
+#define LED1_PORT GPIOA
+#define LED1_BIT GPIO_Pin_4    // red
 
 #define LED2_PORT GPIOB
-#define LED2_BIT GPIO_Pin_1
+#define LED2_BIT GPIO_Pin_1    // blue
 
 #define RADIO_SPI                 SPI1
 #define RADIO_GPIO_SPI_CS         GPIO_Pin_15  // PA15
