@@ -163,7 +163,7 @@ int main(void)
     GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
 
     // Initialise the RF RX and bind
-#ifdef CX_10_RED_RF
+#if 1 //def CX_10_RED_RF                 // revert  FIXME
     init_RFRX();
 #endif
 
@@ -189,11 +189,11 @@ int main(void)
             //collect datas
             ReadMPU();
 
-#ifndef CX_10_RED_RF
+#if 1 // ndef CX_10_RED_RF
             getRXDatas();
 #endif
 
-#ifdef CX_10_RED_RF
+#if 1 //def CX_10_RED_RF
             get_RFRXDatas();
 #endif
 
@@ -350,15 +350,14 @@ int main(void)
         }
 
 #if defined(SERIAL_ACTIVE)
-
         while (serial_available()) {
             serial_read();
             answerStayTime = 20;
         }
-
 #endif
 
         while (micros() - CycleStart < minCycleTime) {
+
 #if defined(SERIAL_ACTIVE)
 
             if (TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)) {
@@ -457,18 +456,8 @@ int main(void)
                     break;
                 }
             }
-
 #endif
+
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

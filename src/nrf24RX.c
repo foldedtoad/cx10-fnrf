@@ -50,7 +50,6 @@ uint32_t flashtime;
 // Configure the nrf24/Beken 2423 and bind
 void init_RFRX()
 {
-
     // Initialise SPI, clocks, etc.
     nrfInit();
 
@@ -58,17 +57,16 @@ void init_RFRX()
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC  | NRF24_PRIM_RX));
 
     // Configuration
-    nrfWrite1Reg(REG_EN_AA, NRF24_ENAA_PA);          // Enable auto-ack on all pipes
+    nrfWrite1Reg(REG_EN_AA, NRF24_ENAA_PA);         // Enable auto-ack on all pipes
     nrfWrite1Reg(REG_EN_RXADDR, NRF24_ERX_PA);      // Enable all pipes
-    nrfWrite1Reg(REG_SETUP_AW, NRF24_AW_5_BYTES);    // 5-byte TX/RX adddress
+    nrfWrite1Reg(REG_SETUP_AW, NRF24_AW_5_BYTES);   // 5-byte TX/RX adddress
 
-    nrfWrite1Reg(REG_SETUP_RETR, 0x1A);              // 500uS timeout, 10 retries
+    nrfWrite1Reg(REG_SETUP_RETR, 0x1A);             // 500uS timeout, 10 retries
     nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);            // Channel 0x3C
-    nrfWrite1Reg(REG_RF_SETUP, NRF24_PWR_0dBm);       // 1Mbps, 0dBm
-    nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);       // Clear status
+    nrfWrite1Reg(REG_RF_SETUP, NRF24_PWR_0dBm);     // 1Mbps, 0dBm
+    nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);     // Clear status
 
-    nrfWrite1Reg(REG_RX_PW_P0,
-                 PAYLOADSIZE);          // Set payload size on all RX pipes
+    nrfWrite1Reg(REG_RX_PW_P0, PAYLOADSIZE);        // Set payload size on all RX pipes
     nrfWrite1Reg(REG_RX_PW_P1, PAYLOADSIZE);
     nrfWrite1Reg(REG_RX_PW_P2, PAYLOADSIZE);
     nrfWrite1Reg(REG_RX_PW_P3, PAYLOADSIZE);
@@ -77,19 +75,17 @@ void init_RFRX()
 
     nrfWrite1Reg(REG_FIFO_STATUS, 0x00);            // Clear FIFO bits (unnesseary?)
 
-    // We we need to activate feature before we do this, presubaly we can delete the next two lines
-    nrfWrite1Reg(REG_DYNPD,
-                 0x3F);                   // Enable dynamic payload (all pipes)
-    nrfWrite1Reg(REG_FEATURE,
-                 0x07);                 // Payloads with ACK, noack command
+    // We we need to activate feature before we do this, 
+    // presubaly we can delete the next two lines
+    nrfWrite1Reg(REG_DYNPD, 0x3F);                  // Enable dynamic payload (all pipes)
+    nrfWrite1Reg(REG_FEATURE, 0x07);                // Payloads with ACK, noack command
 
     // Maybe required
     nrfRead1Reg(REG_FEATURE);
     nrfActivate();                                  // Activate feature register
     nrfRead1Reg(REG_FEATURE);
-    nrfWrite1Reg(REG_DYNPD,
-                 0x3F);                   // Enable dynamic payload length on all pipes
-    nrfWrite1Reg(REG_FEATURE, 0x07);                 // Set feature bits on
+    nrfWrite1Reg(REG_DYNPD, 0x3F);                  // Enable dynamic payload length on all pipes
+    nrfWrite1Reg(REG_FEATURE, 0x07);                // Set feature bits on
 
     // Check for Beken BK2421/BK2423 chip
     // It is done by using Beken specific activate code, 0x53
@@ -136,7 +132,6 @@ void init_RFRX()
             bindflasher(500);
         }
 
-
         // TX sends mutliple packets, so keep reading the FIFO
         // until there is no more data.
         while (!(nrfRead1Reg(REG_FIFO_STATUS) & 0x01)) {
@@ -182,17 +177,15 @@ void init_RFRX()
         GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
 
     }
-
 }
-
 
 
 // Place RF command data in RXcommand variable, process AUX commands
 void get_RFRXDatas()
 {
-
     // If a new packet exists in the buffer
     if (nrfGetStatus() & 0x40) {
+
         // Read the latest command to the buffer
         nrfReadRX(rxbuffer, PAYLOADSIZE);
 
@@ -224,13 +217,11 @@ void get_RFRXDatas()
         // Since data has been received, reset failsafe counter
         failsave = 0;
     }
-
 }
 
 
 void bindflasher(uint32_t rate)
 {
-
     uint32_t millitime = micros() / 1000;
 
     if (millitime - flashtime > rate) {
@@ -252,6 +243,4 @@ void bindflasher(uint32_t rate)
 
         }
     }
-
 }
-

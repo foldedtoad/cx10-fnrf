@@ -43,14 +43,10 @@
 #define RC_CHAN_ORDER 0,1,2,3,4,5 // deltang ppm
 //#define RC_CHAN_ORDER 2,0,1,3,4,5 // orangerx ppm
 
-
-
 // just for Setting things up
 
 // force Serial1 (pin A9 & A10).  unflyable (not needed for the red board)
 //#define FORCE_SERIAL
-
-
 
 // ===== CONFIG END ===== //
 
@@ -92,16 +88,13 @@
 #define RADIO_SPI                 SPI1
 #define RADIO_GPIO_SPI_CS         GPIO_Pin_15  // PA15
 #define RADIO_GPIO_SPI_SCK        GPIO_Pin_3   // PB3
-#define RADIO_GPIO_SPI_MISO       GPIO_Pin_4   // PB4
-#define RADIO_GPIO_SPI_MOSI       GPIO_Pin_5   // PB5
+#define RADIO_GPIO_SPI_MOSI       GPIO_Pin_4   // PB4
+#define RADIO_GPIO_SPI_MISO       GPIO_Pin_5   // PB5
 #define RADIO_GPIO_CE             GPIO_Pin_8   // PB8
 
 #define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = X; GyroXYZ[1] = Y; GyroXYZ[2] = -Z;}
 #define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  Z;}
 #endif
-
-
-
 
 
 //includes

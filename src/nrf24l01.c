@@ -65,14 +65,14 @@
   #define RADIO_DIS_CE() GPIO_ResetBits(GPIOB, RADIO_GPIO_CE)
   #define RADIO_EN_CE()  GPIO_SetBits(GPIOB, RADIO_GPIO_CE)
 #else
-  #define RADIO_EN_CS() GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
+  #define RADIO_EN_CS()  GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
   #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
   #define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
   #define RADIO_EN_CE() //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
 #endif
 
 /* Private variables */
-static bool isInit;
+static bool isInit = false;
 static void (*interruptCb)(void) = NULL;
 
 /***********************
@@ -106,7 +106,6 @@ static char spiReceiveByte()
 unsigned char nrfReadReg(unsigned char address, char* buffer, int len)
 {
     unsigned char status;
-    int i;
 
     RADIO_EN_CS();
 
@@ -114,7 +113,7 @@ unsigned char nrfReadReg(unsigned char address, char* buffer, int len)
     status = spiSendByte(CMD_R_REG | (address & 0x1F));
 
     /* Read LEN bytes */
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         buffer[i] = spiReceiveByte();
     }
 
@@ -127,7 +126,6 @@ unsigned char nrfReadReg(unsigned char address, char* buffer, int len)
 unsigned char nrfWriteReg(unsigned char address, char* buffer, int len)
 {
     unsigned char status;
-    int i;
 
     RADIO_EN_CS();
 
@@ -135,7 +133,7 @@ unsigned char nrfWriteReg(unsigned char address, char* buffer, int len)
     status = spiSendByte(CMD_W_REG | (address & 0x1F));
 
     /* Write LEN bytes */
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         spiSendByte(buffer[i]);
     }
 
@@ -235,7 +233,6 @@ unsigned char nrfActivateBK2423()
 unsigned char nrfWriteAck(unsigned int pipe, char* buffer, int len)
 {
     unsigned char status;
-    int i;
 
     //ASSERT(pipe<6);
 
@@ -245,7 +242,7 @@ unsigned char nrfWriteAck(unsigned int pipe, char* buffer, int len)
     status = spiSendByte(CMD_W_ACK_PAYLOAD(pipe));
 
     /* Read LEN bytes */
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         spiSendByte(buffer[i]);
     }
 
@@ -258,7 +255,6 @@ unsigned char nrfWriteAck(unsigned int pipe, char* buffer, int len)
 unsigned char nrfReadRX(char* buffer, int len)
 {
     unsigned char status;
-    int i;
 
     RADIO_EN_CS();
 
@@ -266,7 +262,7 @@ unsigned char nrfReadRX(char* buffer, int len)
     status = spiSendByte(CMD_R_RX_PAYLOAD);
 
     /* Read LEN bytes */
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         buffer[i] = spiReceiveByte();
     }
 
@@ -357,7 +353,7 @@ void nrfInit(void)
     // Initialise GPIO structure
     GPIO_StructInit(&GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
@@ -388,14 +384,14 @@ void nrfInit(void)
 
     // SPI CS
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_CS;
+    GPIO_InitStructure.GPIO_Pin  = RADIO_GPIO_SPI_CS;
 #if defined(CX_10_BLUE_BOARD)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 #else
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 #endif
 
-    GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_SCK, GPIO_AF_0);
+    GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_SCK,  GPIO_AF_0);
     GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
     GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
 
@@ -406,15 +402,15 @@ void nrfInit(void)
     RADIO_DIS_CE();
 
     /* SPI configuration */
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex;
+    SPI_InitStructure.SPI_Mode              = SPI_Mode_Master;
+    SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;
+    SPI_InitStructure.SPI_CPOL              = SPI_CPOL_Low;
+    SPI_InitStructure.SPI_CPHA              = SPI_CPHA_1Edge;
+    SPI_InitStructure.SPI_NSS               = SPI_NSS_Soft;
     SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;
+    SPI_InitStructure.SPI_CRCPolynomial     = 7;
     SPI_Init(RADIO_SPI, &SPI_InitStructure);
 
     // Set interrupt on 8-bit return

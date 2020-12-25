@@ -17,11 +17,8 @@
 */
 #include "config.h"
 
-
-
 void init_Timer()
 {
-
     TIM_DeInit(TIM3);
 
     // 16bit tim 3 for time measurement
@@ -64,7 +61,6 @@ void init_Timer()
     timerbaseinit.TIM_RepetitionCounter = 0;
     timerbaseinit.TIM_CounterMode = TIM_CounterMode_Up;
 
-
     TIM_DeInit(TIM1);
     TIM_TimeBaseInit(TIM1, &timerbaseinit);
 
@@ -93,7 +89,7 @@ void init_Timer()
     TIM_Cmd(TIM2, ENABLE);
     TIM_CtrlPWMOutputs(TIM16, ENABLE);
     TIM_Cmd(TIM16, ENABLE);
-#endif
+#endif // end of defined(CX_10_RED_BOARD)
 
 #if defined(CX_10_BLUE_BOARD)
     GPIO_InitTypeDef gpioinitTIM;
@@ -102,15 +98,15 @@ void init_Timer()
 #else
     gpioinitTIM.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
 #endif
-    gpioinitTIM.GPIO_Mode = GPIO_Mode_AF;
+    gpioinitTIM.GPIO_Mode  = GPIO_Mode_AF;
     gpioinitTIM.GPIO_Speed = GPIO_Speed_50MHz;
     gpioinitTIM.GPIO_OType = GPIO_OType_PP;
-    gpioinitTIM.GPIO_PuPd   = GPIO_PuPd_NOPULL;
+    gpioinitTIM.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_Init(GPIOA, &gpioinitTIM);
 
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2);
 #if !defined(FORCE_SERIAL)
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9,  GPIO_AF_2);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
 #endif
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_2);
@@ -124,10 +120,10 @@ void init_Timer()
     TIM_TimeBaseInit(TIM1, &timerbaseinit);
 
     TIM_OCInitTypeDef channelbaseconf;
-    channelbaseconf.TIM_OCMode = TIM_OCMode_PWM2;
+    channelbaseconf.TIM_OCMode      = TIM_OCMode_PWM2;
     channelbaseconf.TIM_OutputState = TIM_OutputState_Enable;
-    channelbaseconf.TIM_Pulse = 0;
-    channelbaseconf.TIM_OCPolarity = TIM_OCPolarity_Low;
+    channelbaseconf.TIM_Pulse       = 0;
+    channelbaseconf.TIM_OCPolarity  = TIM_OCPolarity_Low;
     channelbaseconf.TIM_OCIdleState = TIM_OCIdleState_Reset;
 
     TIM_OC1Init(TIM1, &channelbaseconf);
@@ -137,17 +133,5 @@ void init_Timer()
 
     TIM_Cmd(TIM1, ENABLE);
     TIM_CtrlPWMOutputs(TIM1, ENABLE);
-#endif
+#endif // end of defined(CX_10_BLUE_BOARD)
 }
-
-
-
-
-
-
-
-
-
-
-
-
