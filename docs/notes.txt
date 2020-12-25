@@ -1,0 +1,80 @@
+
+Product:
+    CX10-A
+
+Board Component Summary:
+    JG-CX10R-3  (Blue)
+    STM32F031K4                 Application SoC
+    INVENSENS MPU-6052C         6DoF Sensor
+    XN297                       RF transceiver (nRF2401 clone)
+    SI2310 (4)                  MOSFET Switch
+    Motors (4)                  Brush type motors
+    LN1134A302MR                Voltage Regulator  (NatLinear)
+    LiPo battery                100mAH (3.7V)
+    Single-pole, double-throw switch
+    2-pin charger socket
+    LEDs (2 red, 2 blue)
+    16MHz crystal
+
+----------------------------------------------------
+
+STM32F031K4: ARM Cortex-0, 16K Flash, 4K SRAM, 48MHz
+    TIMER
+    SPI (2)
+    ADC
+    GPIO
+    SWD
+
+XN297:
+    2.4GHz radio  (not BLE)
+
+MPU-6052C:
+    Invensense MPU-6052C  6DoF (Accelerometer + Gyroscope)
+
+SI2310:  (4 each)
+    MOSFET switchs to motors
+
+LN1134A302MR: 
+    3.0V Regulator
+
+Application SoC: 
+    STM32F031K4
+    LQFP32 package
+    16Kbytes
+
+----------------------------------------------------
+1   Vdd
+2   OSC-IN
+3   OSC-OUT
+4   nRST        nReset
+5   Vdda
+6   PA0         MPU-6052C INT
+7   PA1         LN1134A302MR - CE pin on Regulator ()
+8   PA2         ADC 12bit mode
+
+9   PA3         TIM3 
+10  PA4         LEDS RED    (aka LED1)
+11  PA5         SI2310-S (Top-Right motor)
+12  PA6         SI2310-S (Top-Left motor)
+13  PA7         SI2310-S (Bottom-Right motor)
+14  PB0         SI2310-S (Bottom-Left motor)
+15  PB1         LEDS BLUE   (aka LED2)
+16  PB2         (possible TP2)
+
+17  Vdd
+18  PA8         SI2310-G (Bottom-Right motor)
+19  PA9         SI2310-G (Top-Left motor)
+20  PA10        SI2310-G (Bottom-Left motor)
+21  PA11        SI2310-G (Top-Right motor)
+22  PA12        XN297 IRQ
+23  PA13        SWCLK
+24  PA14        SWDIO  // only after reset
+
+25  PA15        XN297 CSN
+26  PB3         XN297 SCK
+27  PB4         XN297 MOSI
+28  PB5         XN297 MISO
+29  PB6         MPU-6052C SCL   I2C
+30  PB7         MPU-6052C SDA   I2C
+31  BOOT0
+32  PB8         XN297 CE
