@@ -47,14 +47,14 @@ static char rf_addr_cmnd[5];
 bool flashstate = false;
 uint32_t flashtime;
 
-// Configure the nrf24/Beken 2423 and bind
+// Configure the nrf24/xn297/Beken2423 and bind
 void init_RFRX()
 {
     // Initialise SPI, clocks, etc.
     nrfInit();
 
-    // Power down
-    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC  | NRF24_PRIM_RX));
+    // Power down by resetting NRF24_PWR_UP
+    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PRIM_RX));
 
     // Configuration
     nrfWrite1Reg(REG_EN_AA, NRF24_ENAA_PA);         // Enable auto-ack on all pipes
@@ -62,7 +62,7 @@ void init_RFRX()
     nrfWrite1Reg(REG_SETUP_AW, NRF24_AW_5_BYTES);   // 5-byte TX/RX adddress
 
     nrfWrite1Reg(REG_SETUP_RETR, 0x1A);             // 500uS timeout, 10 retries
-    nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);            // Channel 0x3C
+    nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);            // Channel 0x3C   
     nrfWrite1Reg(REG_RF_SETUP, NRF24_PWR_0dBm);     // 1Mbps, 0dBm
     nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);     // Clear status
 
@@ -87,6 +87,7 @@ void init_RFRX()
     nrfWrite1Reg(REG_DYNPD, 0x3F);                  // Enable dynamic payload length on all pipes
     nrfWrite1Reg(REG_FEATURE, 0x07);                // Set feature bits on
 
+#if defined(RF_BK2423)
     // Check for Beken BK2421/BK2423 chip
     // It is done by using Beken specific activate code, 0x53
     // and checking that status register changed appropriately
@@ -94,6 +95,10 @@ void init_RFRX()
     // closing activate command changes state back even if it
     // does something on nRF24L01
     nrfActivateBK2423();
+#else
+    // For nRF24L01 and XN297
+    nrfActivate();
+#endif
 
     if (nrfRead1Reg(REG_STATUS) & 0x80) {
 
@@ -110,7 +115,11 @@ void init_RFRX()
         nrfWriteReg(0x04, (char*) "\xD9\x96\x82\x1B", 4);
     }
 
+#if defined(RF_BK2423)
     nrfActivateBK2423();
+#else
+    nrfActivate();
+#endif
 
     // Flush the tranmit and receive buffer
     nrfFlushRx();

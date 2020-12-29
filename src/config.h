@@ -1,16 +1,20 @@
-// ===== CONFIG ===== //
+/*--------------------------------------------------------------------------*/
+/* Configuration       Cheerson Board Define                                */
+/*--------------------------------------------------------------------------*/
 
-// Cheerson Board Define
 //#define CX_10_RED_BOARD
 //#define CX_10_GREEN_BOARD // ATM. not implemented
 #define CX_10_BLUE_BOARD
+
+//#define RF_NRF24L01
+//#define RF_BK2423
+#define RF_XN297
 
 // Internal RF (only applicable to red FC at present)
 #ifdef CX_10_RED_BOARD
 
 #define CX_10_RED_RF
 //#define MOTOR_DISABLE // Test mode
-
 #endif
 
 
@@ -50,8 +54,11 @@
 
 // ===== CONFIG END ===== //
 
-
+/*--------------------------------------------------------------------------*/
+/* Red Board                                                                */
+/*--------------------------------------------------------------------------*/
 #if defined(CX_10_RED_BOARD) || defined(FORCE_SERIAL)
+
 #define SERIAL_ACTIVE
 #endif
 
@@ -75,7 +82,11 @@
 #define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = -Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  -Z;}
 #endif
 
+/*--------------------------------------------------------------------------*/
+/* Blue Board                                                               */
+/*--------------------------------------------------------------------------*/
 #if defined(CX_10_BLUE_BOARD)
+
 #define LEDon Bit_SET
 #define LEDoff Bit_RESET
 
@@ -96,6 +107,9 @@
 #define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  Z;}
 #endif
 
+/*--------------------------------------------------------------------------*/
+/* Common                                                                   */
+/*--------------------------------------------------------------------------*/
 
 //includes
 #include "stm32f0xx_conf.h"

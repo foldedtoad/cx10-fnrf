@@ -67,10 +67,10 @@ void nrfIsr(void);
 #define RADIO_RATE_1M 1
 #define RADIO_RATE_2M 2
 
-#define ACTIVATE_DATA                   0x73
+#define ACTIVATE_DATA           0x73
 #define ACTIVATE_BK2423_DATA    0x53
 
-#define DUMMY_BYTE                      0xA5
+#define DUMMY_BYTE              0xA5
 
 /* Registers address definition */
 #define REG_CONFIG 0x00
