@@ -159,14 +159,15 @@ int main(void)
 
     //init
 
+    /* NOTE: Keep printf strings short as memory is tight */
     SEGGER_RTT_Init();
 
-    SEGGER_RTT_printf(0, "CX-10 Drone Firmware\n\0");
+    SEGGER_RTT_printf(0, "CX10 Firmware\n");
 
-    SEGGER_RTT_printf(0, "Init Timer\n\0");
+    //SEGGER_RTT_printf(0, "Timer\n");
     init_Timer();
 
-    SEGGER_RTT_printf(0, "Init A\n");
+    //SEGGER_RTT_printf(0, "ADC\n");
     init_ADC();
 
 #if defined(SERIAL_ACTIVE)
@@ -179,10 +180,10 @@ int main(void)
 #endif
 #endif
 
-    SEGGER_RTT_printf(0, "Init MPU6050\n");
+    //SEGGER_RTT_printf(0, "MPU6050\n");
     init_MPU6050();
 
-    SEGGER_RTT_printf(0, "Init LEDs\n");
+    //SEGGER_RTT_printf(0, "LEDs\n");
     GPIO_InitTypeDef LEDGPIOinit;
     LEDGPIOinit.GPIO_Pin   = LED1_BIT;         // RED
     LEDGPIOinit.GPIO_Mode  = GPIO_Mode_OUT;
@@ -199,7 +200,7 @@ int main(void)
 
     // Initialise the RF RX and bind
 #if 1 //def CX_10_RED_RF                 // revert  FIXME
-    SEGGER_RTT_printf(0, "Init RFRX\n");
+    //SEGGER_RTT_printf(0, "RFRX\n");
     init_RFRX();
 #endif
 
