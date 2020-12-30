@@ -38,6 +38,9 @@ void init_Timer()
     NVIC_Init(&NVIC_InitStructure);
     TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 
+/*--------------------------------------------------------------------------*/
+/* Red Board                                                                */
+/*--------------------------------------------------------------------------*/
 #if defined(CX_10_RED_BOARD)
     GPIO_InitTypeDef gpioinitTIM;
     gpioinitTIM.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_8 | GPIO_Pin_11;
@@ -91,6 +94,9 @@ void init_Timer()
     TIM_Cmd(TIM16, ENABLE);
 #endif // end of defined(CX_10_RED_BOARD)
 
+/*--------------------------------------------------------------------------*/
+/* Blue Board                                                               */
+/*--------------------------------------------------------------------------*/
 #if defined(CX_10_BLUE_BOARD)
     GPIO_InitTypeDef gpioinitTIM;
 #if defined(FORCE_SERIAL)
