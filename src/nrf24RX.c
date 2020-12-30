@@ -41,7 +41,8 @@ bool bind = false;
 extern int16_t RXcommands[6];
 
 char rxbuffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-const char rf_addr_bind[5] = {0x65, 0x65, 0x65, 0x65, 0x65};
+//const char rf_addr_bind[5] = {0x65, 0x65, 0x65, 0x65, 0x65};
+const char rf_addr_bind[5] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
 static char rf_addr_cmnd[5];
 
 bool flashstate = false;
@@ -66,6 +67,9 @@ void init_RFRX()
     nrfWrite1Reg(REG_RF_SETUP, NRF24_PWR_0dBm);     // 1Mbps, 0dBm
     nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);     // Clear status
 
+    //uint8_t value = nrfRead1Reg(REG_RF_CH);
+    //SEGGER_RTT_printf(0, "%x value 0x%02x 0x%02x\n", REG_RF_CH, RF_CHANNEL, value);
+
     nrfWrite1Reg(REG_RX_PW_P0, PAYLOADSIZE);        // Set payload size on all RX pipes
     nrfWrite1Reg(REG_RX_PW_P1, PAYLOADSIZE);
     nrfWrite1Reg(REG_RX_PW_P2, PAYLOADSIZE);
@@ -81,24 +85,50 @@ void init_RFRX()
     nrfWrite1Reg(REG_FEATURE, 0x07);                // Payloads with ACK, noack command
 
     // Maybe required
+    
     nrfRead1Reg(REG_FEATURE);
-    nrfActivate();                                  // Activate feature register
+    nrfActivate();                                  // Activate feature 
     nrfRead1Reg(REG_FEATURE);
     nrfWrite1Reg(REG_DYNPD, 0x3F);                  // Enable dynamic payload length on all pipes
     nrfWrite1Reg(REG_FEATURE, 0x07);                // Set feature bits on
 
+#if defined(RF_XN297)
+    {
+        const unsigned char bb_cal[5] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
+        const unsigned char rf_cal[7] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
+        const unsigned char demod[5]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
+
+        nrfWriteReg(REG_BB_CAL, (char*) bb_cal, sizeof(bb_cal));
+        nrfWriteReg(REG_RF_CAL, (char*) rf_cal, sizeof(rf_cal));
+        nrfWriteReg(REG_DEM_CAL, (char*) demod, sizeof(demod));
+
+#if 0  // debugging
+        {
+            char rb_bb_cal[sizeof(bb_cal)] = {0};
+            char rb_rf_cal[sizeof(rf_cal)] = {0};
+            char rb_demod_cal[sizeof(demod)] = {0};
+            
+            nrfReadReg(REG_BB_CAL, rb_bb_cal, sizeof(rb_bb_cal));
+            nrfReadReg(REG_RF_CAL, rb_rf_cal, sizeof(rb_rf_cal));
+            nrfReadReg(REG_DEM_CAL, rb_demod_cal, sizeof(rb_demod_cal));
+
+            SEGGER_RTT_printf(0, "%02x %02x %02x %02x %02x %02x %02x\n",
+                rb_rf_cal[0], rb_rf_cal[1], rb_rf_cal[2], rb_rf_cal[3], 
+                rb_rf_cal[4], rb_rf_cal[5], rb_rf_cal[6]);           
+        }
+#endif
+    }
+
+#endif
+
 #if defined(RF_BK2423)
     // Check for Beken BK2421/BK2423 chip
     // It is done by using Beken specific activate code, 0x53
-    // and checking that status register changed appropriately
+    // and checking that status register changed appropriately.
     // There is no harm to run it on nRF24L01 because following
     // closing activate command changes state back even if it
     // does something on nRF24L01
     nrfActivateBK2423();
-#else
-    // For nRF24L01 and XN297
-    nrfActivate();
-#endif
 
     if (nrfRead1Reg(REG_STATUS) & 0x80) {
 
@@ -114,11 +144,13 @@ void init_RFRX()
         nrfWriteReg(0x04, (char*) "\xDF\x96\x82\x1B", 4);
         nrfWriteReg(0x04, (char*) "\xD9\x96\x82\x1B", 4);
     }
+#else
+    // For nRF24L01 and XN297
+    nrfActivate();
+#endif
 
 #if defined(RF_BK2423)
     nrfActivateBK2423();
-#else
-    nrfActivate();
 #endif
 
     // Flush the tranmit and receive buffer
@@ -126,8 +158,8 @@ void init_RFRX()
     nrfFlushTx();
 
     // Set device to bind address
-    nrfWriteReg(REG_RX_ADDR_P0, (char*) rf_addr_bind, 5);
-    nrfWriteReg(REG_TX_ADDR, (char*) rf_addr_bind, 5);
+    nrfWriteReg(REG_RX_ADDR_P0, (char*) rf_addr_bind, sizeof(rf_addr_bind));
+    nrfWriteReg(REG_TX_ADDR, (char*) rf_addr_bind, sizeof(rf_addr_bind));
 
     // Power up
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
@@ -167,8 +199,8 @@ void init_RFRX()
         rf_addr_cmnd[4] = 0xC1;
 
         // Set to TX command address
-        nrfWriteReg(REG_RX_ADDR_P0,  rf_addr_cmnd, 5);
-        nrfWriteReg(REG_TX_ADDR, rf_addr_cmnd, 5);
+        nrfWriteReg(REG_RX_ADDR_P0,  rf_addr_cmnd, sizeof(rf_addr_cmnd));
+        nrfWriteReg(REG_TX_ADDR, rf_addr_cmnd, sizeof(rf_addr_cmnd));
 
         // Flush buffer and clear status
         nrfFlushRx();

@@ -100,6 +100,12 @@ void nrfIsr(void);
 #define REG_DYNPD 0x1C
 #define REG_FEATURE 0x1D
 
+#if defined(RF_XN297)
+#define REG_DEM_CAL 0x19
+#define REG_RF_CAL 0x1E
+#define REG_BB_CAL 0x1F
+#endif
+
 #define VAL_RF_SETUP_250K 0x26
 #define VAL_RF_SETUP_1M   0x06
 #define VAL_RF_SETUP_2M   0x0E

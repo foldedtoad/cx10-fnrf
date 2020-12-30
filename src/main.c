@@ -135,7 +135,6 @@ int main(void)
                            ENABLE);
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1   |
-                           RCC_APB2Periph_USART1 |
                            RCC_APB2Periph_ADC1   |
                            RCC_APB2Periph_TIM16  |
                            RCC_APB2Periph_TIM1   |
@@ -150,7 +149,6 @@ int main(void)
                            ENABLE);
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1   |
-                           RCC_APB2Periph_USART1 |
                            RCC_APB2Periph_ADC1   |
                            RCC_APB2Periph_TIM1   |
                            RCC_APB2Periph_SYSCFG,
@@ -169,10 +167,6 @@ int main(void)
 
     //SEGGER_RTT_printf(0, "ADC\n");
     init_ADC();
-
-#if defined(SERIAL_ACTIVE)
-    init_UART(115200);
-#endif
 
 #ifndef CX_10_RED_RF
 #if 0  // FIXME  temp remove for debugging
@@ -388,17 +382,9 @@ int main(void)
             }
         }
 
-#if defined(SERIAL_ACTIVE)
-        while (serial_available()) {
-            serial_read();
-            answerStayTime = 20;
-        }
-#endif
-
         while (micros() - CycleStart < minCycleTime) {
 
-#if defined(SERIAL_ACTIVE)
-
+#if 0
             if (TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)) {
                 TelMtoSend--;
 

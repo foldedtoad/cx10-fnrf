@@ -25,7 +25,6 @@ SRC += ./src/main.c
 SRC += ./src/RX.c
 SRC += ./src/MPU6050.c
 SRC += ./src/adc.c
-SRC += ./src/serial.c
 SRC += ./src/timer.c
 SRC += ./src/adc.c
 SRC += ./src/stm32f0xx_it.c
@@ -54,7 +53,6 @@ SRC += $(STMSPSRCDDIR)/stm32f0xx_rcc.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_rtc.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_spi.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_tim.c
-SRC += $(STMSPSRCDDIR)/stm32f0xx_usart.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_wwdg.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_misc.c
 

@@ -57,12 +57,8 @@
 /*--------------------------------------------------------------------------*/
 /* Red Board                                                                */
 /*--------------------------------------------------------------------------*/
-#if defined(CX_10_RED_BOARD) || defined(FORCE_SERIAL)
-
-#define SERIAL_ACTIVE
-#endif
-
 #if defined(CX_10_RED_BOARD)
+
 #define LEDon Bit_SET
 #define LEDoff Bit_RESET
 
@@ -119,7 +115,6 @@
 #include "MPU6050.h"
 #include "RX.h"
 #include "timer.h"
-#include "serial.h"
 #include "nrf24RX.h"
 #include "nrf24l01.h"
 
