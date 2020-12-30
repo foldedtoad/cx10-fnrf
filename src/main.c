@@ -128,24 +128,45 @@ int main(void)
                           RCC_AHBPeriph_GPIOB,
                           ENABLE);
 
+#if defined(CX_10_RED_BOARD)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 |
                            RCC_APB1Periph_TIM2 |
                            RCC_APB1Periph_TIM3,
                            ENABLE);
-    
+
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1   |
                            RCC_APB2Periph_USART1 |
                            RCC_APB2Periph_ADC1   |
-#if defined(CX_10_RED_BOARD)
                            RCC_APB2Periph_TIM16  |
-#endif
                            RCC_APB2Periph_TIM1   |
                            RCC_APB2Periph_SYSCFG,
                            ENABLE);
 
+#endif
+
+#if defined(CX_10_BLUE_BOARD)
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1 |
+                           RCC_APB1Periph_TIM3,
+                           ENABLE);
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1   |
+                           RCC_APB2Periph_USART1 |
+                           RCC_APB2Periph_ADC1   |
+                           RCC_APB2Periph_TIM1   |
+                           RCC_APB2Periph_SYSCFG,
+                           ENABLE);
+#endif
+
     //init
+
+    SEGGER_RTT_Init();
+
+    SEGGER_RTT_printf(0, "CX-10 Drone Firmware\n\0");
+
+    SEGGER_RTT_printf(0, "Init Timer\n\0");
     init_Timer();
 
+    SEGGER_RTT_printf(0, "Init A\n");
     init_ADC();
 
 #if defined(SERIAL_ACTIVE)
@@ -158,8 +179,10 @@ int main(void)
 #endif
 #endif
 
+    SEGGER_RTT_printf(0, "Init MPU6050\n");
     init_MPU6050();
 
+    SEGGER_RTT_printf(0, "Init LEDs\n");
     GPIO_InitTypeDef LEDGPIOinit;
     LEDGPIOinit.GPIO_Pin   = LED1_BIT;         // RED
     LEDGPIOinit.GPIO_Mode  = GPIO_Mode_OUT;
@@ -176,8 +199,11 @@ int main(void)
 
     // Initialise the RF RX and bind
 #if 1 //def CX_10_RED_RF                 // revert  FIXME
+    SEGGER_RTT_printf(0, "Init RFRX\n");
     init_RFRX();
 #endif
+
+    SEGGER_RTT_printf(0, "Enter working loop\n");
 
     while (1) {
         static uint32_t last_Time = 0;

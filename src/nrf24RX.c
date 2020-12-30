@@ -137,9 +137,11 @@ void init_RFRX()
         // Wait until we receive a data packet, flashing alternately
         flashtime = micros() / 1000;
 
+        SEGGER_RTT_printf(0, "Wait for bind...\n");
         while (!(nrfGetStatus() & 0x40)) {
             bindflasher(500);
         }
+        SEGGER_RTT_printf(0, "Bound\n");
 
         // TX sends mutliple packets, so keep reading the FIFO
         // until there is no more data.
