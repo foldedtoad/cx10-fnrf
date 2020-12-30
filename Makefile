@@ -32,6 +32,9 @@ SRC += ./src/stm32f0xx_it.c
 SRC += ./src/system_stm32f0xx.c
 SRC += ./src/nrf24l01.c
 SRC += ./src/nrf24RX.c
+SRC += ./src/RTT/SEGGER_RTT_printf.c
+SRC += ./src/RTT/SEGGER_RTT.c
+
 ## used parts of the STM-Library
 SRC += $(STMSPSRCDDIR)/stm32f0xx_adc.c
 SRC += $(STMSPSRCDDIR)/stm32f0xx_cec.c
@@ -72,7 +75,8 @@ OBJCOPY		 =  arm-none-eabi-objcopy
 INCLUDE_DIRS = $(DEVDIR)/Include \
           $(CORELIBDIR) \
           $(STMSPINCDDIR) \
-          ./src
+          ./src \
+          ./src/RTT
 
 ARCH_FLAGS	 = -mthumb -mcpu=cortex-m0
 BASE_CFLAGS	 = $(ARCH_FLAGS) \

@@ -112,6 +112,7 @@
 /*--------------------------------------------------------------------------*/
 
 //includes
+#include "SEGGER_RTT.h"
 #include "stm32f0xx_conf.h"
 #include "adc.h"
 #include "main.h"
