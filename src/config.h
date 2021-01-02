@@ -17,10 +17,17 @@
 //#define MOTOR_DISABLE // Test mode
 #endif
 
+#if defined(RF_XN297)
+  #define RF_CHANNEL      0x02
+  #define PAYLOADSIZE     19
+#else
+  #define RF_CHANNEL      0x3C      // Stock TX fixed frequency (0x3C)
+  #define PAYLOADSIZE     9         // Protocol packet size
+#endif
 
 // Throttle settings
-#define MIN_COMMAND 80 // controll starts if throttle is higher then that 
-#define MIN_THROTTLE 50 // minimum speed for the motors
+#define MIN_COMMAND 80   // controll starts if throttle is higher then that 
+#define MIN_THROTTLE 50  // minimum speed for the motors
 
 // P term 40 == 4.0
 #define GYRO_P_ROLL  45

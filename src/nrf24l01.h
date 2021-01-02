@@ -164,6 +164,19 @@ void nrfIsr(void);
 #define NRF24_PWR_m12dBm                                0x02
 #define NRF24_PWR_m6dBm                                 0x04
 #define NRF24_PWR_0dBm                                  0x06
+#define NRF24_LNA                                       0x01
+
+#if defined(RF_XN297)
+// #define XN297_REG_06_RF_SETUP                           0x06
+#define XN297_RSSI_EN                                   0x80
+#define XN297_RSSI_SEL                                  0x20
+#define XN297_PWR                                       0x06
+#define XN297_PWR_m10dBm                                0x00
+#define XN297_PWR_0dBm                                  0x02
+#define XN297_PWR_8dBm                                  0x04
+#define XN297_PWR_10dBm                                 0x06
+#define XN297_LNA                                       0x01
+#endif
 
 #define NRF24_ENAA_PA (NRF24_ENAA_P0 | NRF24_ENAA_P1 | NRF24_ENAA_P2 | NRF24_ENAA_P3 | NRF24_ENAA_P4 | NRF24_ENAA_P5)
 #define NRF24_ERX_PA (NRF24_ERX_P0 | NRF24_ERX_P1 | NRF24_ERX_P2 | NRF24_ERX_P3 | NRF24_ERX_P4 | NRF24_ERX_P5)
