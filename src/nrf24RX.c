@@ -72,7 +72,7 @@ void dump_regs(void)
             case 0x18: // not a reg
                 break;
             default:
-                SEGGER_RTT_printf(0, "reg[%02x] 0x%02x\n", reg, nrfRead1Reg(reg));
+                LOG(0, "reg[%02x] 0x%02x\n", reg, nrfRead1Reg(reg));
                 break;
         }
     }
@@ -104,7 +104,7 @@ void rfchip_init(void)
 
     nrfWrite1Reg(REG_RF_SETUP, XN297_PWR_0dBm + XN297_LNA);  // 1Mbps, 0dBm, LNA-High-Current
 
-    SEGGER_RTT_printf(0, "ch %d\n", RF_CHANNEL);
+    LOG(0, "CH %d\n", RF_CHANNEL);
 
     nrfWrite1Reg(REG_RX_PW_P0, PAYLOADSIZE);        // Set payload size on all RX pipes
     nrfWrite1Reg(REG_RX_PW_P1, 0);
@@ -258,12 +258,11 @@ void init_RFRX(void)
         // Wait until we receive a data packet, flashing alternately
         flashtime = micros() / 1000;
 
-        SEGGER_RTT_printf(0, "Waiting packet\n");
+        LOG(0, "Waiting BIND packet\n");
         while (!(nrfGetStatus() & 0x40)) {
             bindflasher(500);
-            //if (nrfRead1Reg(REG_RPD))  SEGGER_RTT_printf(0, "CD\n");
         }
-        SEGGER_RTT_printf(0, "received\n");
+        LOG(0, "received\n");
 
         // TX sends mutliple packets, so keep reading the FIFO
         // until there is no more data.

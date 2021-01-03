@@ -54,21 +54,6 @@ static uint16_t minCycleTime = 2000;
 static uint16_t T3OV = 0;
 static int8_t answerStayTime = 0;
 static uint16_t LiPoEmptyWaring = 0;
-uint8_t nx[2] = {'\n', '\r'};
-uint8_t TelRXThrottle[10] = {'T', 'h', 'r', 'o', 't', 't', 'l', 'e', ' ', ' '};
-uint8_t TelRXRoll[10] = {'R', 'o', 'l', 'l', ' ', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelRXPitch[10] = {'P', 'i', 't', 'c', 'h', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelRXYaw[10] = {'Y', 'a', 'w', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelRXAux1[10] = {'A', 'u', 'x', '1', ' ', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelRXAux2[10] = {'A', 'u', 'x', '2', ' ', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelLiPoVolt[10] = {'L', 'i', 'P', 'o', ' ', 'V', 'o', 'l', 't', '.'};
-uint8_t TelGX[10] = {'G', 'y', 'r', 'o', ' ', 'X', ' ', ' ', ' ', ' '};
-uint8_t TelGY[10] = {'G', 'y', 'r', 'o', ' ', 'Y', ' ', ' ', ' ', ' '};
-uint8_t TelGZ[10] = {'G', 'y', 'r', 'o', ' ', 'Z', ' ', ' ', ' ', ' '};
-uint8_t TelAX[10] = {'A', 'C', 'C', ' ', 'X', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelAY[10] = {'A', 'C', 'C', ' ', 'Y', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelAZ[10] = {'A', 'C', 'C', ' ', 'Z', ' ', ' ', ' ', ' ', ' '};
-uint8_t TelDefaultAnswer[10] = {'H', 'o', 'd', 'o', 'r', '!', ' ', ' ', ' ', ' '};
 
 int16_t RXcommands[6] = {0, 500, 500, 500, -500, 500};
 int8_t Armed = 0;
@@ -157,17 +142,19 @@ int main(void)
 
     //init
 
+#if defined(USE_SEGGER_RTT)
     /* NOTE: Keep printf strings short as memory is tight */
     SEGGER_RTT_Init();
+#endif
 
-    SEGGER_RTT_printf(0, "CX10 Firmware\n");
+    LOG(0, "CX10 Firmware\n");
 
     init_Timer();
 
     init_ADC();
 
 #ifndef CX_10_RED_RF
-#if 0  // FIXME  temp remove for debugging
+#if 0  // FIXME  temp remove for debugging (interfers with SWD)
     init_PPMRX();
 #endif
 #endif
@@ -193,7 +180,7 @@ int main(void)
     init_RFRX();
 #endif
 
-    SEGGER_RTT_printf(0, "working loop\n");
+    LOG(0, "working loop\n");
 
     while (1) {
         static uint32_t last_Time = 0;
@@ -379,100 +366,69 @@ int main(void)
 
         while (micros() - CycleStart < minCycleTime) {
 
-#if 0  // TBD  use SEGGER RTT input to drive cmds here.
+#if 0 // Diagnostics/Testing
             if (TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)) {
                 TelMtoSend--;
 
                 switch (TelMtoSend) {
+
                 case 14:
-                    serial_send_bytes(TelRXThrottle, 10);
-                    print_int16(RXcommands[0]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Throttle: %d\n", RXcommands[0]);
                     break;
 
                 case 13:
-                    serial_send_bytes(TelRXRoll, 10);
-                    print_int16(RXcommands[1]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Roll:  %d\n", RXcommands[1]);
                     break;
 
                 case 12:
-                    serial_send_bytes(TelRXPitch, 10);
-                    print_int16(RXcommands[2]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Pitch: %d\n", RXcommands[2]);
                     break;
 
                 case 11:
-                    serial_send_bytes(TelRXYaw, 10);
-                    print_int16(RXcommands[3]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Yaw:   %d\n", RXcommands[3]);
                     break;
 
                 case 10:
-                    serial_send_bytes(TelRXAux1, 10);
-                    print_int16(RXcommands[4]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Aux1: %d\n", (RXcommands[4]));
                     break;
 
                 case 9:
-                    serial_send_bytes(TelRXAux2, 10);
-                    print_int16(RXcommands[5]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Aux2: %d\n", (RXcommands[5]));
                     break;
 
                 case 8:
-                    serial_send_bytes(TelLiPoVolt, 10);
-                    print_int16(LiPoVolt);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "LiPo Volt: %d\n", LiPoVolt);
                     break;
 
                 case 7:
-                    serial_send_bytes(TelGX, 10);
-                    print_int16(GyroXYZ[0]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Gyro X: %d\n", GyroXYZ[0]);
                     break;
 
                 case 6:
-                    serial_send_bytes(TelGY, 10);
-                    print_int16(GyroXYZ[1]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Gyro Y: %d\n", GyroXYZ[1]);
                     break;
 
                 case 5:
-                    serial_send_bytes(TelGZ, 10);
-                    print_int16(GyroXYZ[2]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Gyro Z: %d\n",GyroXYZ[2]);
                     break;
 
                 case 4:
-                    serial_send_bytes(TelAX, 10);
-                    print_int16(ACCXYZ[0]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Acc X:  %d\n", ACCXYZ[0]);
                     break;
 
                 case 3:
-                    serial_send_bytes(TelAY, 10);
-                    print_int16(ACCXYZ[1]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Acc Y:  %d\n", ACCXYZ[1]);
                     break;
 
                 case 2:
-                    serial_send_bytes(TelAZ, 10);
-                    print_int16(ACCXYZ[2]);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "Acc Z:  %d\n", ACCXYZ[2]);
                     break;
 
                 case 1:
-                    serial_send_bytes(nx, 2);
-                    serial_send_bytes(nx, 2);
-                    serial_send_bytes(nx, 2);
+                    LOG(0, "\n");
                     break;
 
-                case 0:
-                    serial_send_bytes(TelDefaultAnswer, 10);
-                    serial_send_bytes(nx, 2);
-                    serial_send_bytes(nx, 2);
-                    serial_send_bytes(nx, 2);
+                default:
                     break;
                 }
             }

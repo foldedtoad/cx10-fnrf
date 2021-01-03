@@ -326,7 +326,6 @@ void nrfSetAddress(unsigned int pipe, char* address)
 
 void nrfSetEnable(bool enable)
 {
-    SEGGER_RTT_printf(0, "CE %d\n", enable);
     if (enable) {
         RADIO_EN_CE();
     } else {

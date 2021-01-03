@@ -17,6 +17,9 @@
 //#define MOTOR_DISABLE // Test mode
 #endif
 
+// Define if LOGging is desired.
+#define USE_SEGGER_RTT
+
 #if defined(RF_XN297)
   #define RF_CHANNEL      0x02
   #define PAYLOADSIZE     19
@@ -50,14 +53,11 @@
 #define RC_PITCH_RATE 88 // 0-100
 #define RC_YAW_RATE 88 // 0-100
 
-// order is Throttle,Roll,Pitch,Yaw,Aux1,Aux2
+//
+// Channel order is Throttle, Roll, Pitch, Yaw, Aux1, Aux2
+//
 #define RC_CHAN_ORDER 0,1,2,3,4,5 // deltang ppm
 //#define RC_CHAN_ORDER 2,0,1,3,4,5 // orangerx ppm
-
-// just for Setting things up
-
-// force Serial1 (pin A9 & A10).  unflyable (not needed for the red board)
-//#define FORCE_SERIAL
 
 // ===== CONFIG END ===== //
 
@@ -136,7 +136,14 @@
 /*--------------------------------------------------------------------------*/
 
 //includes
-#include "SEGGER_RTT.h"
+
+#if defined(USE_SEGGER_RTT)
+  #include "SEGGER_RTT.h"
+  #define LOG  SEGGER_RTT_printf
+#else
+  #define LOG(...)
+#endif
+
 #include "stm32f0xx_conf.h"
 #include "adc.h"
 #include "main.h"
