@@ -150,10 +150,7 @@ void rfchip_init(void)
     nrfWriteReg(REG_RX_ADDR_P0, (char*) rf_addr_bind, sizeof(rf_addr_bind));
     nrfWriteReg(REG_TX_ADDR,    (char*) rf_addr_bind, sizeof(rf_addr_bind));
 
-    // Power up
-    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
-
-    dump_regs();
+    //dump_regs();
 }
 
 #else  // defined(RF_XN297)
@@ -234,9 +231,6 @@ void rfchip_init(void)
     nrfWriteReg( REG_RX_ADDR_P0, (char *) rf_addr_bind, 5);
     nrfWriteReg( REG_TX_ADDR, (char *) rf_addr_bind, 5);
 
-    // Power up
-    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
-
     //dump_regs();
 }
 
@@ -253,6 +247,12 @@ void init_RFRX(void)
     // Initialize RF-chip specific details.
     rfchip_init();
 
+    // Power up in RX mode
+    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
+    nrfSetEnable(true);
+
+    for (int i=0; i <300000; i++) {/*spin*/}   // delay 100ms
+
     while (!bind) {
 
         // Wait until we receive a data packet, flashing alternately
@@ -261,6 +261,7 @@ void init_RFRX(void)
         SEGGER_RTT_printf(0, "Waiting packet\n");
         while (!(nrfGetStatus() & 0x40)) {
             bindflasher(500);
+            //if (nrfRead1Reg(REG_RPD))  SEGGER_RTT_printf(0, "CD\n");
         }
         SEGGER_RTT_printf(0, "received\n");
 

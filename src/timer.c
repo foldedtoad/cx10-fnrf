@@ -21,7 +21,7 @@ void init_Timer()
 {
     TIM_DeInit(TIM3);
 
-    // 16bit tim 3 for time measurement
+    // 16-bit TIM3 used for time measurement
     TIM_TimeBaseInitTypeDef timerbaseinit;
     timerbaseinit.TIM_Prescaler = 47; // ticks with 1µs
     timerbaseinit.TIM_Period = 0xFFFF;
@@ -99,11 +99,8 @@ void init_Timer()
 /*--------------------------------------------------------------------------*/
 #if defined(CX_10_BLUE_BOARD)
     GPIO_InitTypeDef gpioinitTIM;
-#if defined(FORCE_SERIAL)
-    gpioinitTIM.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_11;
-#else
-    gpioinitTIM.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
-#endif
+
+    gpioinitTIM.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
     gpioinitTIM.GPIO_Mode  = GPIO_Mode_AF;
     gpioinitTIM.GPIO_Speed = GPIO_Speed_50MHz;
     gpioinitTIM.GPIO_OType = GPIO_OType_PP;
@@ -111,11 +108,10 @@ void init_Timer()
     GPIO_Init(GPIOA, &gpioinitTIM);
 
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2);
-#if !defined(FORCE_SERIAL)
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource9,  GPIO_AF_2);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
-#endif
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_2);
+
     timerbaseinit.TIM_Prescaler = 1; // 24khz
     timerbaseinit.TIM_Period = 1000;
     timerbaseinit.TIM_ClockDivision = TIM_CKD_DIV1;

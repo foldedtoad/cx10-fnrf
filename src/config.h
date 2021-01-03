@@ -66,20 +66,31 @@
 /*--------------------------------------------------------------------------*/
 #if defined(CX_10_RED_BOARD)
 
-#define LEDon Bit_SET
+#define LEDon  Bit_SET
 #define LEDoff Bit_RESET
 
-#define LED1_PORT GPIOB
-#define LED1_BIT GPIO_Pin_2
+#define LED1_PORT                 GPIOB
+#define LED1_BIT                  GPIO_Pin_2
 
-#define LED2_PORT GPIOA
-#define LED2_BIT GPIO_Pin_15
+#define LED2_PORT                 GPIOA
+#define LED2_BIT                  GPIO_Pin_15
 
 #define RADIO_SPI                 SPI1
+
+#define RADIO_GPIO_SPI_CS_PORT    GPIOA
 #define RADIO_GPIO_SPI_CS         GPIO_Pin_4
+
+#define RADIO_GPIO_SPI_SCK_PORT   GPIOA
 #define RADIO_GPIO_SPI_SCK        GPIO_Pin_5
+
+#define RADIO_GPIO_SPI_MOSI_PORT  GPIOA
 #define RADIO_GPIO_SPI_MISO       GPIO_Pin_6
+
+#define RADIO_GPIO_SPI_MISO_PORT  GPIOA
 #define RADIO_GPIO_SPI_MOSI       GPIO_Pin_7
+
+#define RADIO_GPIO_CE_PORT        GPIOA
+#define RADIO_GPIO_CE             GPIO_PIN_0   // FIXME find correct pin for CE
 
 #define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = -X; GyroXYZ[1] = -Y; GyroXYZ[2] = -Z;}
 #define ACC_ORIENTATION(X, Y, Z)  {ACCXYZ[0]  = -Y; ACCXYZ[1]  =  -X; ACCXYZ[2]  =  -Z;}
@@ -90,20 +101,30 @@
 /*--------------------------------------------------------------------------*/
 #if defined(CX_10_BLUE_BOARD)
 
-#define LEDon Bit_SET
+#define LEDon  Bit_SET
 #define LEDoff Bit_RESET
 
-#define LED1_PORT GPIOA
-#define LED1_BIT GPIO_Pin_4    // red
+#define LED1_PORT                 GPIOA
+#define LED1_BIT                  GPIO_Pin_4    // red
 
-#define LED2_PORT GPIOB
-#define LED2_BIT GPIO_Pin_1    // blue
+#define LED2_PORT                 GPIOB
+#define LED2_BIT                  GPIO_Pin_1    // blue
 
 #define RADIO_SPI                 SPI1
+
+#define RADIO_GPIO_SPI_CS_PORT    GPIOA
 #define RADIO_GPIO_SPI_CS         GPIO_Pin_15  // PA15
+
+#define RADIO_GPIO_SPI_SCK_PORT   GPIOB
 #define RADIO_GPIO_SPI_SCK        GPIO_Pin_3   // PB3
+
+#define RADIO_GPIO_SPI_MOSI_PORT  GPIOB
 #define RADIO_GPIO_SPI_MOSI       GPIO_Pin_4   // PB4
+
+#define RADIO_GPIO_SPI_MISO_PORT  GPIOB
 #define RADIO_GPIO_SPI_MISO       GPIO_Pin_5   // PB5
+
+#define RADIO_GPIO_CE_PORT        GPIOB
 #define RADIO_GPIO_CE             GPIO_Pin_8   // PB8
 
 #define GYRO_ORIENTATION(X, Y, Z) {GyroXYZ[0] = X; GyroXYZ[1] = Y; GyroXYZ[2] = -Z;}

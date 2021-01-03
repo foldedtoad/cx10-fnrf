@@ -58,17 +58,17 @@
 #include "stm32f0xx_spi.h"
 #include "stm32f0xx_exti.h"
 
-/* Usefull macro */
+/* Useful macro */
 #if defined(CX_10_BLUE_BOARD)
-  #define RADIO_EN_CS()  GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
-  #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
-  #define RADIO_DIS_CE() GPIO_ResetBits(GPIOB, RADIO_GPIO_CE)
-  #define RADIO_EN_CE()  GPIO_SetBits(GPIOB, RADIO_GPIO_CE)
+  #define RADIO_EN_CS()  GPIO_ResetBits(RADIO_GPIO_SPI_CS_PORT, RADIO_GPIO_SPI_CS)
+  #define RADIO_DIS_CS() GPIO_SetBits(RADIO_GPIO_SPI_CS_PORT, RADIO_GPIO_SPI_CS)
+  #define RADIO_DIS_CE() GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
+  #define RADIO_EN_CE()  GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
 #else
-  #define RADIO_EN_CS()  GPIO_ResetBits(GPIOA, RADIO_GPIO_SPI_CS)
-  #define RADIO_DIS_CS() GPIO_SetBits(GPIOA, RADIO_GPIO_SPI_CS)
-  #define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
-  #define RADIO_EN_CE() //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
+  #define RADIO_EN_CS()  GPIO_ResetBits(RADIO_GPIO_SPI_CS_PORT, RADIO_GPIO_SPI_CS)
+  #define RADIO_DIS_CS() GPIO_SetBits(RADIO_GPIO_SPI_CS_PORT, RADIO_GPIO_SPI_CS)
+  #define RADIO_DIS_CE() //GPIO_ResetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)  // Why defeated??
+  #define RADIO_EN_CE()  //GPIO_SetBits(RADIO_GPIO_CE_PORT, RADIO_GPIO_CE)
 #endif
 
 /* Private variables */
@@ -326,6 +326,7 @@ void nrfSetAddress(unsigned int pipe, char* address)
 
 void nrfSetEnable(bool enable)
 {
+    SEGGER_RTT_printf(0, "CE %d\n", enable);
     if (enable) {
         RADIO_EN_CE();
     } else {
@@ -358,47 +359,38 @@ void nrfInit(void)
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
 
-    //  SPI SCK pin configuration
+    // SPI SCK pin configuration
     GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_SCK;
-#if defined(CX_10_BLUE_BOARD)
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-#else
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
+    GPIO_Init(RADIO_GPIO_SPI_SCK_PORT, &GPIO_InitStructure);
 
-    //   SPI  MOSI pin configuration
+    // SPI  MOSI pin configuration
     GPIO_InitStructure.GPIO_Pin =  RADIO_GPIO_SPI_MOSI;
-#if defined(CX_10_BLUE_BOARD)
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-#else
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
+    GPIO_Init(RADIO_GPIO_SPI_MOSI_PORT, &GPIO_InitStructure);
 
-    //  SPI MISO pin configuration
+    // SPI MISO pin configuration
     GPIO_InitStructure.GPIO_Pin = RADIO_GPIO_SPI_MISO;
-#if defined(CX_10_BLUE_BOARD)
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-#else
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
+    GPIO_Init(RADIO_GPIO_SPI_MISO_PORT, &GPIO_InitStructure);
 
     // SPI CS
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_Pin  = RADIO_GPIO_SPI_CS;
-#if defined(CX_10_BLUE_BOARD)
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-#else
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_Init(RADIO_GPIO_SPI_CS_PORT, &GPIO_InitStructure);
 
-    GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_SCK,  GPIO_AF_0);
-    GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
-    GPIO_PinAFConfig(GPIOA, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
+    // Chip Enable -- CE
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Pin  = RADIO_GPIO_CE;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+    GPIO_Init(RADIO_GPIO_CE_PORT, &GPIO_InitStructure);
 
-    // disable the chip select
+    GPIO_PinAFConfig(RADIO_GPIO_SPI_SCK_PORT,  RADIO_GPIO_SPI_SCK,  GPIO_AF_0);
+    GPIO_PinAFConfig(RADIO_GPIO_SPI_MOSI_PORT, RADIO_GPIO_SPI_MOSI, GPIO_AF_0);
+    GPIO_PinAFConfig(RADIO_GPIO_SPI_MISO_PORT, RADIO_GPIO_SPI_MISO, GPIO_AF_0);
+
+    // Disable the chip select
     RADIO_DIS_CS();
 
-    // disable the chip enable
+    // Disable the chip enable
     RADIO_DIS_CE();
 
     /* SPI configuration */

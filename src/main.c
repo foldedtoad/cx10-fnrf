@@ -162,10 +162,8 @@ int main(void)
 
     SEGGER_RTT_printf(0, "CX10 Firmware\n");
 
-    //SEGGER_RTT_printf(0, "Timer\n");
     init_Timer();
 
-    //SEGGER_RTT_printf(0, "ADC\n");
     init_ADC();
 
 #ifndef CX_10_RED_RF
@@ -174,10 +172,8 @@ int main(void)
 #endif
 #endif
 
-    //SEGGER_RTT_printf(0, "MPU6050\n");
     init_MPU6050();
 
-    //SEGGER_RTT_printf(0, "LEDs\n");
     GPIO_InitTypeDef LEDGPIOinit;
     LEDGPIOinit.GPIO_Pin   = LED1_BIT;         // RED
     LEDGPIOinit.GPIO_Mode  = GPIO_Mode_OUT;
@@ -193,12 +189,11 @@ int main(void)
     GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
 
     // Initialise the RF RX and bind
-#if 1 //def CX_10_RED_RF                 // revert  FIXME
-    //SEGGER_RTT_printf(0, "RFRX\n");
+#if defined(CX_10_RED_BOARD) || defined(CX_10_BLUE_BOARD)
     init_RFRX();
 #endif
 
-    SEGGER_RTT_printf(0, "Enter working loop\n");
+    SEGGER_RTT_printf(0, "working loop\n");
 
     while (1) {
         static uint32_t last_Time = 0;
@@ -222,18 +217,18 @@ int main(void)
             //collect datas
             ReadMPU();
 
-#if 1 // ndef CX_10_RED_RF
+#if defined(CX_10_RED_BOARD) || defined(CX_10_BLUE_BOARD)
             getRXDatas();
 #endif
 
-#if 1 //def CX_10_RED_RF
+#if defined(CX_10_RED_BOARD) || defined(CX_10_BLUE_BOARD)
             get_RFRXDatas();
 #endif
 
             // get setpoint
             for (i = 0; i < 3; i++) {
-                RPY_useRates[i] = 100 - (uint32_t)((abs(RXcommands[i + 1]) * 2) * RPY_Rate[i]) /
-                                  1000;
+                RPY_useRates[i] = 
+                    100 - (uint32_t)((abs(RXcommands[i + 1]) * 2) * RPY_Rate[i]) / 1000;
 
                 if (mode == 0) { // HH mode
                     setpoint[i] = ((RXcommands[i + 1]) * RC_Rate / 100);
@@ -384,7 +379,7 @@ int main(void)
 
         while (micros() - CycleStart < minCycleTime) {
 
-#if 0
+#if 0  // TBD  use SEGGER RTT input to drive cmds here.
             if (TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)) {
                 TelMtoSend--;
 
