@@ -157,7 +157,9 @@ void rfchip_init(void)
         // transmit data -- used HackRF + gqrx set at 2402MHz
         const static uint8_t txdata[] = 
             {0xAA, 0x30, 0x31, 0x32, 0x33, 0x40, 0x41, 0x42, 0x3, 0x00, 0x00};
-    
+
+        LOG(0, "Transmit test\n");
+
         while(1) {
             nrfSetEnable(false);
             nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP));
