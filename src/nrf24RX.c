@@ -50,11 +50,11 @@ bool bind = false;
 extern int16_t RXcommands[6];
 
 char rxbuffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-static char rf_addr_cmnd[5];
 
 bool flashstate = false;
 uint32_t flashtime;
 
+//#define TEST_TRANSMIT
 
 #if defined(RF_XN297)
     #define REGS_END 0x1F
@@ -151,6 +151,29 @@ void rfchip_init(void)
     nrfWriteReg(REG_TX_ADDR,    (char*) rf_addr_bind, sizeof(rf_addr_bind));
 
     //dump_regs();
+
+#if defined(TEST_TRANSMIT)
+    {
+        // transmit data -- used HackRF + gqrx set at 2402MHz
+        const static uint8_t txdata[] = 
+            {0xAA, 0x30, 0x31, 0x32, 0x33, 0x40, 0x41, 0x42, 0x3, 0x00, 0x00};
+    
+        while(1) {
+            nrfSetEnable(false);
+            nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP));
+            nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);
+            nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+            nrfFlushTx();
+            nrfWriteTX((char*)txdata, sizeof(txdata));
+
+            // Toggle CE line
+            nrfSetEnable(true);
+            for (int i=0; i <3000; i++) {/*spin*/}  // delay ~2ms
+            nrfSetEnable(false);
+            for (int i=0; i <3000; i++) {/*spin*/}
+        }
+    }
+#endif
 }
 
 #else  // defined(RF_XN297)
@@ -236,6 +259,7 @@ void rfchip_init(void)
 
 #endif // defined(RF_XN297)
 
+
 /*--------------------------------------------------------------------------*/
 /* Configure the RF chip and bind                                           */
 /*--------------------------------------------------------------------------*/
@@ -247,11 +271,13 @@ void init_RFRX(void)
     // Initialize RF-chip specific details.
     rfchip_init();
 
+#if !defined(TEST_TRANSMIT)  // TEST_TRANSMIT and this won't fit in memory.
+
+    static char rf_addr_cmnd[5];
+
     // Power up in RX mode
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
     nrfSetEnable(true);
-
-    for (int i=0; i <300000; i++) {/*spin*/}   // delay 100ms
 
     while (!bind) {
 
@@ -309,6 +335,7 @@ void init_RFRX(void)
         GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
 
     }
+#endif // !defined(TEST_TRANSMIT)
 }
 
 /*--------------------------------------------------------------------------*/

@@ -251,6 +251,26 @@ unsigned char nrfWriteAck(unsigned int pipe, char* buffer, int len)
     return status;
 }
 
+// Write the TX payload
+unsigned char nrfWriteTX(char* buffer, int len)
+{
+    unsigned char status;
+
+    RADIO_EN_CS();
+
+    /* Send the read command with the address */
+    status = spiSendByte(CMD_W_TX_PAYLOAD);
+
+    /* Read LEN bytes */
+    for (int i = 0; i < len; i++) {
+        spiSendByte(buffer[i]);
+    }
+
+    RADIO_DIS_CS();
+
+    return status;
+}
+
 // Read the RX payload
 unsigned char nrfReadRX(char* buffer, int len)
 {

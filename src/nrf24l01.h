@@ -218,6 +218,7 @@ unsigned char nrfRxLength(unsigned int pipe);
 unsigned char nrfActivate(void);
 unsigned char nrfActivateBK2423(void);
 unsigned char nrfWriteAck(unsigned int pipe, char* buffer, int len);
+unsigned char nrfWriteTX(char* buffer, int len);
 unsigned char nrfReadRX(char* buffer, int len);
 void nrfSetChannel(unsigned int channel);
 void nrfSetDatarate(int datarate);
