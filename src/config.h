@@ -20,6 +20,12 @@
 // Define if LOGging is desired.
 #define USE_SEGGER_RTT
 
+// Test basic sensors: (ACCEL/GYRO), battery voltage, etc.
+//#define TEST_SENSORS
+
+// Test basic transmission functionality
+//#define TEST_TRANSMIT
+
 #if defined(RF_XN297)
   #define RF_CHANNEL      0x02
   #define PAYLOADSIZE     19

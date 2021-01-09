@@ -54,14 +54,6 @@ char rxbuffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 bool flashstate = false;
 uint32_t flashtime;
 
-//#define TEST_TRANSMIT
-
-#if defined(RF_XN297)
-    #define REGS_END 0x1F
-#else
-    #define REGS_END 0x1D
-#endif
-
 /*--------------------------------------------------------------------------*/
 /*  Dump all registers                                                      */
 /*--------------------------------------------------------------------------*/
@@ -70,6 +62,8 @@ void dump_regs(void)
     for (int reg=0; reg <= REGS_END; reg++) {
         switch(reg) {
             case 0x18: // not a reg
+            case 0x1A: // not a reg
+            case 0x1B: // not a reg
                 break;
             default:
                 LOG(0, "reg[%02x] 0x%02x\n", reg, nrfRead1Reg(reg));
@@ -102,9 +96,9 @@ void rfchip_init(void)
     nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);            // Channel  
     nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);     // Clear status
 
-    nrfWrite1Reg(REG_RF_SETUP, XN297_PWR_0dBm + XN297_LNA);  // 1Mbps, 0dBm, LNA-High-Current
+    nrfWrite1Reg(REG_RF_SETUP, XN297_PWR_10dBm + XN297_LNA);  // 1Mbps, 10dBm, LNA-High-Current
 
-    LOG(0, "CH %d\n", RF_CHANNEL);
+    //LOG(0, "CH %d\n", RF_CHANNEL);
 
     nrfWrite1Reg(REG_RX_PW_P0, PAYLOADSIZE);        // Set payload size on all RX pipes
     nrfWrite1Reg(REG_RX_PW_P1, 0);
@@ -121,9 +115,7 @@ void rfchip_init(void)
     //
     nrfWrite1Reg(REG_DYNPD,   0x00);                // Disable dynamic payload
     nrfWrite1Reg(REG_FEATURE, 0x00);                // No payloads ACKs
-
     nrfActivate();                                  // Activate feature  (why here?)
-
     nrfWrite1Reg(REG_DYNPD,   0x00);                // Disable dynamic payload length
     nrfWrite1Reg(REG_FEATURE, 0x00);                // Set feature bits on
 
@@ -131,9 +123,23 @@ void rfchip_init(void)
         //
         // Initialize XN297 special regs
         //
+#if 1
+        // original code values
         const unsigned char bb_cal[] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
         const unsigned char rf_cal[] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
         const unsigned char demod[]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
+#endif
+#if 0
+        // taken from XN297 manual with reversed byte-order
+        const unsigned char bb_cal[] = {0x7F, 0x84, 0x67, 0x9C, 0x20};
+        const unsigned char rf_cal[] = {0xCA, 0x9A, 0xB0, 0x61, 0x83, 0x2B, 0x95};
+        const unsigned char demod[]  = {0x0B, 0xDF, 0x00, 0xA7, 0x03};
+#endif
+#if 0
+        const unsigned char bb_cal[] = {0x4C, 0x84, 0x6F, 0x9C, 0x20};
+        const unsigned char rf_cal[] = {0xDA, 0x9A, 0x80, 0x79, 0xBB, 0xAB, 0x9C};
+        const unsigned char demod[]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
+#endif
 
         nrfWriteReg(REG_BB_CAL, (char*) bb_cal, sizeof(bb_cal));
         nrfWriteReg(REG_RF_CAL, (char*) rf_cal, sizeof(rf_cal));
@@ -161,7 +167,7 @@ void rfchip_init(void)
         LOG(0, "Transmit test\n");
 
         while(1) {
-            nrfSetEnable(false);
+            nrfSetEnable(ENABLE_SEND);
             nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP));
             nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);
             nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
@@ -169,10 +175,8 @@ void rfchip_init(void)
             nrfWriteTX((char*)txdata, sizeof(txdata));
 
             // Toggle CE line
-            nrfSetEnable(true);
-            for (int i=0; i <3000; i++) {/*spin*/}  // delay ~2ms
-            nrfSetEnable(false);
-            for (int i=0; i <3000; i++) {/*spin*/}
+            nrfSetEnable(ENABLE_RECEIVE);
+            for (int i=0; i <6000; i++) {/*spin*/}  // delay ~2ms
         }
     }
 #endif
@@ -186,9 +190,6 @@ void rfchip_init(void)
 void rfchip_init(void)
 {
     const char rf_addr_bind[5] = {0x65, 0x65, 0x65, 0x65, 0x65};
-
-    // Initialise SPI, clocks, etc.
-    nrfInit();
 
     // Power down
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC  | NRF24_PRIM_RX));  
@@ -216,13 +217,14 @@ void rfchip_init(void)
     nrfWrite1Reg( REG_DYNPD, 0x3F);                  // Enable dynamic payload (all pipes)
     nrfWrite1Reg( REG_FEATURE, 0x07);                // Payloads with ACK, noack command
 
-     // Maybe required
+    // Maybe required
     nrfRead1Reg(REG_FEATURE);
     nrfActivate();                                  // Activate feature register
     nrfRead1Reg(REG_FEATURE);
     nrfWrite1Reg(REG_DYNPD, 0x3F);                   // Enable dynamic payload length on all pipes
     nrfWrite1Reg(REG_FEATURE, 0x07);                 // Set feature bits on
 
+#if defined(RF_BK2423)
     // Check for Beken BK2421/BK2423 chip
     // It is done by using Beken specific activate code, 0x53
     // and checking that status register changed appropriately
@@ -247,6 +249,9 @@ void rfchip_init(void)
     }
 
     nrfActivateBK2423(); 
+#else
+    nrfActivate(); 
+#endif  // defined(RF_BK2423)
 
     // Flush the tranmit and receive buffer
     nrfFlushRx();
@@ -273,24 +278,24 @@ void init_RFRX(void)
     // Initialize RF-chip specific details.
     rfchip_init();
 
-#if !defined(TEST_TRANSMIT)  // TEST_TRANSMIT and this won't fit in memory.
+#if !defined(TEST_TRANSMIT) && !defined(TEST_SENSORS) // TEST_TRANSMIT and this won't fit in memory.
 
     static char rf_addr_cmnd[5];
 
     // Power up in RX mode
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
-    nrfSetEnable(true);
+    nrfSetEnable(ENABLE_RECEIVE);
 
     while (!bind) {
 
         // Wait until we receive a data packet, flashing alternately
         flashtime = micros() / 1000;
 
-        LOG(0, "Waiting BIND packet\n");
+        LOG(0, "Waiting BIND\n");
         while (!(nrfGetStatus() & 0x40)) {
             bindflasher(500);
         }
-        LOG(0, "received\n");
+        //LOG(0, "received\n");
 
         // TX sends mutliple packets, so keep reading the FIFO
         // until there is no more data.
@@ -303,6 +308,7 @@ void init_RFRX(void)
                 nrfReadRX(rxbuffer, PAYLOADSIZE);
             }
         }
+        //LOG(0, "L%d\n", __LINE__);
 
         // Flush buffer and clear status
         nrfFlushRx();
@@ -314,6 +320,8 @@ void init_RFRX(void)
         rf_addr_cmnd[2] = rxbuffer[2];
         rf_addr_cmnd[3] = rxbuffer[3];
         rf_addr_cmnd[4] = 0xC1;
+
+        LOG(0, "Addr %02x:%02x:%02X:%02x:%02x\n", rf_addr_cmnd[0], rf_addr_cmnd[1], rf_addr_cmnd[2], rf_addr_cmnd[3], rf_addr_cmnd[4]);
 
         // Set to TX command address
         nrfWriteReg(REG_RX_ADDR_P0,  rf_addr_cmnd, sizeof(rf_addr_cmnd));
@@ -330,12 +338,12 @@ void init_RFRX(void)
             bindflasher(250);
         }
 
+        LOG(0, "BIND!\n");
         bind = true;
 
         // Turn of LEDs
         GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
         GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
-
     }
 #endif // !defined(TEST_TRANSMIT)
 }

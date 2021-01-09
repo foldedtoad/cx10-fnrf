@@ -366,7 +366,7 @@ int main(void)
 
         while (micros() - CycleStart < minCycleTime) {
 
-#if 0 // Diagnostics/Testing
+#if defined(TEST_SENSORS)
             if (TelMtoSend > 1 || (answerStayTime > 0 && TelMtoSend > 0)) {
                 TelMtoSend--;
 
@@ -432,7 +432,7 @@ int main(void)
                     break;
                 }
             }
-#endif
+#endif  // defined(TEST_SENSORS)
 
         }
     }

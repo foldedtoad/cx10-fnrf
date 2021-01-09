@@ -197,7 +197,16 @@ void nrfIsr(void);
 #define CMD_W_PAYLOAD_NO_ACK    0xD0
 #define CMD_NOP                 0xFF
 
+enum {
+    ENABLE_SEND    = false,
+    ENABLE_RECEIVE = true,
+};
 
+#if defined(RF_XN297)
+    #define REGS_END 0x1F
+#else
+    #define REGS_END 0x1D
+#endif
 
 /* Low level reg access
  * FIXME: the user should not need to access raw registers...
