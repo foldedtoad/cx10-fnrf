@@ -81,6 +81,17 @@ void rfchip_init(void)
     const char rf_addr_bind[5] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
 
     //
+    // Initialize XN297 special regs
+    //
+    const unsigned char bb_cal[] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
+    const unsigned char rf_cal[] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
+    const unsigned char demod[]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
+
+    nrfWriteReg(REG_BB_CAL, (char*) bb_cal, sizeof(bb_cal));
+    nrfWriteReg(REG_RF_CAL, (char*) rf_cal, sizeof(rf_cal));
+    nrfWriteReg(REG_DEM_CAL, (char*) demod, sizeof(demod));
+
+    //
     // Power down by resetting NRF24_PWR_UP
     //
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PRIM_RX));
@@ -118,33 +129,6 @@ void rfchip_init(void)
     nrfActivate();                                  // Activate feature  (why here?)
     nrfWrite1Reg(REG_DYNPD,   0x00);                // Disable dynamic payload length
     nrfWrite1Reg(REG_FEATURE, 0x00);                // Set feature bits on
-
-    {
-        //
-        // Initialize XN297 special regs
-        //
-#if 1
-        // original code values
-        const unsigned char bb_cal[] = {0x4C, 0x84, 0x67, 0x9C, 0x20};
-        const unsigned char rf_cal[] = {0xC9, 0x9A, 0xB0, 0x61, 0xBB, 0xAB, 0x9C};
-        const unsigned char demod[]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
-#endif
-#if 0
-        // taken from XN297 manual with reversed byte-order
-        const unsigned char bb_cal[] = {0x7F, 0x84, 0x67, 0x9C, 0x20};
-        const unsigned char rf_cal[] = {0xCA, 0x9A, 0xB0, 0x61, 0x83, 0x2B, 0x95};
-        const unsigned char demod[]  = {0x0B, 0xDF, 0x00, 0xA7, 0x03};
-#endif
-#if 0
-        const unsigned char bb_cal[] = {0x4C, 0x84, 0x6F, 0x9C, 0x20};
-        const unsigned char rf_cal[] = {0xDA, 0x9A, 0x80, 0x79, 0xBB, 0xAB, 0x9C};
-        const unsigned char demod[]  = {0x0B, 0xDF, 0xC4, 0xA7, 0x03};
-#endif
-
-        nrfWriteReg(REG_BB_CAL, (char*) bb_cal, sizeof(bb_cal));
-        nrfWriteReg(REG_RF_CAL, (char*) rf_cal, sizeof(rf_cal));
-        nrfWriteReg(REG_DEM_CAL, (char*) demod, sizeof(demod));
-    }
 
     nrfActivate();
 
