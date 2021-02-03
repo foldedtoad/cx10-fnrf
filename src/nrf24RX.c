@@ -49,7 +49,7 @@ extern uint8_t failsave;
 bool bind = false;
 extern int16_t RXcommands[6];
 
-char rxbuffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+char rxbuffer[PAYLOADSIZE] = {0};
 
 bool flashstate = false;
 uint32_t flashtime;
@@ -250,6 +250,15 @@ void rfchip_init(void)
 
 #endif // defined(RF_XN297)
 
+/*--------------------------------------------------------------------------*/
+/*                                                                          */
+/*--------------------------------------------------------------------------*/
+void show_packet(char * packet, int len) {
+    for (int i=0; i<len; i++){
+         LOG(0, "%02x ", packet[i]);
+    }
+    LOG(0, "(%d)\n", len);
+}
 
 /*--------------------------------------------------------------------------*/
 /* Configure the RF chip and bind                                           */
@@ -266,16 +275,78 @@ void init_RFRX(void)
 
     static char rf_addr_cmnd[5];
 
+    (void) rf_addr_cmnd;
+
     // Power up in RX mode
     nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP | NRF24_PRIM_RX));
     nrfSetEnable(ENABLE_RECEIVE);
+
+#if 0
+
+    LOG(0, "Waiting BIND\n");
+    while (!(nrfGetStatus() & 0x40)) {
+        bindflasher(500);
+    }
+    LOG(0, "received\n");
+
+    // Bind packet is nine bytes on pipe zero
+    uint8_t len = nrfRxLength(0);
+
+    nrfReadRX(rxbuffer, PAYLOADSIZE);
+    show_packet(rxbuffer, len);
+
+    // Configure the command address
+    rf_addr_cmnd[0] = rxbuffer[0];
+    rf_addr_cmnd[1] = rxbuffer[1];
+    rf_addr_cmnd[2] = rxbuffer[2];
+    rf_addr_cmnd[3] = rxbuffer[3];
+    rf_addr_cmnd[4] = 0xC1;
+
+    // Flush buffer and clear status
+    nrfFlushRx();
+    nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+
+    // Send reply
+    nrfSetEnable(ENABLE_SEND);
+    nrfWrite1Reg(REG_CONFIG, (NRF24_EN_CRC | NRF24_PWR_UP));
+    nrfWrite1Reg(REG_RF_CH, RF_CHANNEL);
+    nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
+    nrfFlushTx();
+
+    rxbuffer[5] = 0xDE;
+    rxbuffer[6] = 0xAD;
+    rxbuffer[7] = 0xBE;
+    rxbuffer[8] = 0xEF;
+    rxbuffer[9] = 1;
+    
+    rxbuffer[10] = 0;
+    rxbuffer[11] = 0;
+    rxbuffer[12] = 0;
+    rxbuffer[13] = 0;
+    rxbuffer[14] = 0;
+    rxbuffer[15] = 0;
+    rxbuffer[16] = 0;
+    rxbuffer[17] = 0;
+    rxbuffer[18] = 0;
+
+    show_packet(rxbuffer, len);
+
+    nrfWriteTX((char*)rxbuffer, sizeof(rxbuffer));
+
+    // Turn off blinking LEDs
+    GPIO_WriteBit(LED1_PORT, LED1_BIT, LEDoff);
+    GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
+
+    nrfSetEnable(ENABLE_RECEIVE);
+
+#else
 
     while (!bind) {
 
         // Wait until we receive a data packet, flashing alternately
         flashtime = micros() / 1000;
 
-        LOG(0, "Waiting BIND\n");
+        //LOG(0, "Waiting BIND\n");
         while (!(nrfGetStatus() & 0x40)) {
             bindflasher(500);
         }
@@ -290,6 +361,7 @@ void init_RFRX(void)
 
                 // Get the packet
                 nrfReadRX(rxbuffer, PAYLOADSIZE);
+                break;
             }
         }
         //LOG(0, "L%d\n", __LINE__);
@@ -305,7 +377,9 @@ void init_RFRX(void)
         rf_addr_cmnd[3] = rxbuffer[3];
         rf_addr_cmnd[4] = 0xC1;
 
-        LOG(0, "Addr %02x:%02x:%02X:%02x:%02x\n", rf_addr_cmnd[0], rf_addr_cmnd[1], rf_addr_cmnd[2], rf_addr_cmnd[3], rf_addr_cmnd[4]);
+        //LOG(0, "Addr %02x:%02x:%02X:%02x:%02x\n", rf_addr_cmnd[0], rf_addr_cmnd[1], rf_addr_cmnd[2], rf_addr_cmnd[3], rf_addr_cmnd[4]);
+
+        show_packet(rxbuffer, PAYLOADSIZE);
 
         // Set to TX command address
         nrfWriteReg(REG_RX_ADDR_P0,  rf_addr_cmnd, sizeof(rf_addr_cmnd));
@@ -322,7 +396,7 @@ void init_RFRX(void)
             bindflasher(250);
         }
 
-        LOG(0, "BIND!\n");
+        //LOG(0, "BIND!\n");
         bind = true;
 
         // Turn of LEDs
@@ -330,6 +404,8 @@ void init_RFRX(void)
         GPIO_WriteBit(LED2_PORT, LED2_BIT, LEDoff);
     }
 #endif // !defined(TEST_TRANSMIT)
+
+#endif
 }
 
 /*--------------------------------------------------------------------------*/
@@ -348,7 +424,7 @@ void get_RFRXDatas()
         nrfWrite1Reg(REG_STATUS, NRF_STATUS_CLEAR);
 
         // FC order: T   A   E   R   A1   A2
-        // RF order: T    R   ?   E   A     Et    At   F   ?
+        // RF order: T   R   ?   E   A    Et    At   F   ?
 
         // PPM firmware expects a range of 1000, TX range is 0xFF (max rate), mid-stick is 0x40,
         // BS twice leads to a range of 1020, which is close enough for now.

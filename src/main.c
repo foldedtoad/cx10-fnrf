@@ -180,7 +180,7 @@ int main(void)
     init_RFRX();
 #endif
 
-    LOG(0, "working loop\n");
+    //LOG(0, "working loop\n");
 
     while (1) {
         static uint32_t last_Time = 0;
